@@ -710,20 +710,95 @@ kubectl delete ds kube-proxy -n kube-system
 <p>
 
 ```bash
+# create hostpath persistent volume named 'pv-volume' using 1 gigabyte of storage from the host at '/mnt/data' on host
+cat <<EOF | k apply -f -
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-volume
+spec:
+  hostPath:
+    path: "/mnt/data"
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+EOF
+
+# create persistent volume claim named 'pv-claim' that requests 1 gigabyte of storage from the first available persistent volume in the cluster
+cat <<EOF | k apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+# create a pod named 'pv-pod' that uses the persistent volume claim 'pv-claim' and mounts a volume named 'pv-storage' inside of the container at '/usr/share/nginx/html'
+cat <<EOF | k apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pv-pod
+spec:
+  containers:
+    - name: pv-container
+      image: nginx
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: pv-storage
+  volumes:
+    - name: pv-storage
+      persistentVolumeClaim:
+        claimName: pv-claim
+EOF
+
 # list all persistent volumes in the default namespace
 kubectl get pv
+
+# list only volume named 'pv-volume'
+k get pv pv-volume
+
+# show YAML output of persistent volume 'pv-volume'
+k get pv pv-volume -o yaml
 
 # get detailed configuration info for all persistent volumes in the default namespace
 kubectl describe pv
 
+# describe persistent volume 'pv-volume'
+k describe pv pv-volume
+
 # list all persisten volume claims in the default namespace
 kubectl get pvc
+
+# list persistent volume claim named 'pv-claim'
+k get pvc pv-claim
+
+# get YAML output of persistent volume claim 'pv-claim'
+k get pvc pv-claim -o yaml
 
 # get detailed configuration info for all persistent volume claims in the default namespace
 kubectl describe pvc
 
+# describe persistent volume claim 'pv-claim'
+k describe pvc pv-claim
+
+# list persistent volumes and persistent volume claims
+k get pv,pvc
+
+# delete persistent volume 'pv-volume'
+k delete pv pv-volume
+
+# delete persistent volume claim 'pv-claim'
+k delete pvc pv-claim
+
 # list all storage class resources in the default namespace
-kubectl get svc
+kubectl get sc
 
 # output the yaml manifest for all storage class resources in the default namespace
 kubectl get sc -o yaml
