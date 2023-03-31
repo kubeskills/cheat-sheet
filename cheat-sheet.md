@@ -282,6 +282,18 @@ kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=kind-co
 # list all pods in the kube-system namespace and sort by node name
 kubectl get po -o custom-columns=POD:metadata.name,NODE:spec.nodeName --sort-by spec.nodeName -n kube-system
 
+# list pods by name only
+kubectl get po -o jsonpath='{ .items[*].metadata.name}'
+
+# list all pods with label 'app=mongo' by name only
+kubectl get po -l 'app=mongo' -o jsonpath='{ .items[*].metadata.name}'
+
+# list the first pod with label 'app=mongo' by name only
+kubectl get po -l 'app=mongo' -o jsonpath='{ .items[0].metadata.name}'
+
+# list the name of the first pod with label 'app=mongo' and store it in a variable named 'MONGOPOD'
+MONGOPOD=$(kubectl get po -l 'app=mongo' -o jsonpath='{ .items[0].metadata.name}')
+
 # list all kubernetes resources in all namespaces
 kubectl get all --all-namespaces
 
