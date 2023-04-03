@@ -294,6 +294,12 @@ kubectl get po -l 'app=mongo' -o jsonpath='{ .items[0].metadata.name}'
 # list the name of the first pod with label 'app=mongo' and store it in a variable named 'MONGOPOD'
 MONGOPOD=$(kubectl get po -l 'app=mongo' -o jsonpath='{ .items[0].metadata.name}')
 
+# get the documentation of pods and its fields
+kubectl explain pods
+
+# get the documentation for the spec field in pods
+kubectl explain pods.spec.containers
+
 # list all kubernetes resources in all namespaces
 kubectl get all --all-namespaces
 
@@ -472,6 +478,12 @@ kubectl get deploy -o yaml
 # describe the configuration for all deployments in the default namespace
 kubectl describe deploy
 
+# get the documentation of the spec field, inside of the template field of a deployment 
+kubectl explain deploy.spec.template.spec
+
+# get the documentation of the spec field of a deployment
+kubectl explain deploy.spec
+
 # delete deployment 'nginx'
 kubectl delete deploy nginx
 
@@ -486,6 +498,9 @@ kubectl get rs -o yaml
 
 # describe the configuration of all replicasets in the default namespace
 kubectl describe rs
+
+# get the documentation of the vsphere volume path for replicaSets
+kubectl explain rs.spec.template.spec.volumes.vsphereVolume.volumePath
 ```
 
 </p>
@@ -529,6 +544,9 @@ kubectl describe svc
 
 # show the labels on all services in the default namespace
 kubectl get svc --show-labels
+
+# get the documentation for the type, under spec for a service
+kubectl explain svc.spec.type
 
 # edit service 'app-service' in the default namespace
 kubectl edit svc app-service
